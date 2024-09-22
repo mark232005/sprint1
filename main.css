@@ -1,0 +1,20 @@
+
+
+table {
+    border-collapse: collapse;
+    margin: 20px;
+}
+td {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    border: 1px solid #000;
+    font-size: 24px;
+}
+.cell {
+    cursor: pointer;
+}
+p{
+text-align: center;
+font-size: larger;
+}
