@@ -2,8 +2,13 @@
 const MINE = '💣'
 const EMPTY = ''
 const MARK = '📍'
-
-
+const life = '❤️'
+const BROKENLIFE = '💔'
+const NORMAL = '😄'
+const LOSE = '🤕'
+const win = '🤩'
+const USEHELP = '🪫'
+const UNUSEHELP = '💡'
 const TIMER_INTERVAL = 31
 const INITIAL_TIMER_TEXT = '00:00.000'
 
@@ -12,12 +17,25 @@ const INITIAL_TIMER_TEXT = '00:00.000'
 ////MODAL:
 var gTimerIntrval // holds the interval
 var gStartTime // holds the curr time
-var gStart=0
+var gStart = 0
 var gBoard
+var gLife = 3
+
 var gLevel1 = {
     size: 4,
     mines: 2
 }
+
+var gLevel2 = {
+    size: 8,
+    mines: 14
+}
+
+var gLevel3 = {
+    size: 12,
+    mines: 32
+}
+
 var gGame = {
     isOn: false,
     shownCount: 0,
@@ -25,34 +43,43 @@ var gGame = {
     secsPassed: 0
 }
 var gMarkedMinsCount = 0
+var gUseHelp=false
+var gUseHelpCount=0
 /////////////////////////////////////////////////////////////////////
 
 
 function onInit() {
     clearInterval(gTimerIntrval)
-    
+    var elLife = document.querySelector('.life')
+    elLife.innerHTML = life + life + life
     var elTimer = document.querySelector('.timer')
     elTimer.innerText = INITIAL_TIMER_TEXT
-    var elshownCount=document.querySelector('.shown-count')
-    elshownCount.innerHTML=0
+    gGame.shownCount = 0
+    var elshownCount = document.querySelector('.shown-count')
+    elshownCount.innerHTML = 0
     gMarkedMinsCount = 0
-    var elmarkedCount=document.querySelector('.marked-count')
-    elmarkedCount.innerHTML=0
-    
-    
+    var elmarkedCount = document.querySelector('.marked-count')
+    elmarkedCount.innerHTML = 0
+    gGame.markedCount = 0
+    var elRestartBtn = document.querySelector('.restart-btn')
+    elRestartBtn.innerHTML = NORMAL
+    gStart = 0
+    gUseHelpCount=0
+    var elUseHlep=document.querySelector('.use-hlep')
+    elUseHlep.innerHTML=UNUSEHELP+UNUSEHELP+UNUSEHELP
+
+
     gGame.isOn = true
-    gBoard = buildBoard()
+    gBoard = buildBoard(gLevel1.size, gLevel1.mines)
     renderBoard(gBoard)
-    
+
 }
 ////////////////////////////////////////////////////////////////////
-function buildBoard() {
-    const ROWS = 4
-    const COLS = 4
+function buildBoard(size,minesCount) {
     const board = []
-    for (var i = 0; i < ROWS; i++) {
+    for (var i = 0; i < size; i++) {
         board[i] = []
-        for (var j = 0; j < COLS; j++) {
+        for (var j = 0; j < size; j++) {
             board[i][j] = {
                 minesAroundCount: 0,
                 isShown: false,
@@ -61,6 +88,12 @@ function buildBoard() {
             }
         }
     }
+    if (gStart === 0) {
+        randPosMin(gBoard,minesCount)
+        setMinesNegsCount(gBoard)
+        gStart++
+    }
+
     return board
 }
 //////////////////////////////////////////////////////////////////////
@@ -104,20 +137,39 @@ function setMinesNegsCount(board) {
 }
 ////////////////////////////////////////////////////////////////////////////////
 function onCellClicked(i, j) {
-    if (gStart === 0) {
-        randPosMin(gBoard, gLevel1.mines)
-        setMinesNegsCount(gBoard)
-        gStart++
-    }
-
+    
+   if(gUseHelp) {
+    gUseHelpCount++
+    useHelp(i,j)
+gGame.shownCount--
+var elshownCount = document.querySelector('.shown-count')
+elshownCount.innerHTML = gGame.shownCount
+}
     const cell = gBoard[i][j]
     if (cell.isMin) {
-        console.log('losed');
-        clearInterval(gTimerIntrval)
-        for (var x = 0; x < gBoard.length; x++) {
-            for (var y = 0; y < gBoard[0].length; y++) {
-                if (gBoard[x][y].isMin) {
-                    gBoard[x][y].isShown = true
+        alert('YOU BLEW UP')
+        gLife--
+        if (gLife === 2) {
+            var elLife = document.querySelector('.life')
+            elLife.innerHTML = life + life + BROKENLIFE
+        }
+        if (gLife === 1) {
+            var elLife = document.querySelector('.life')
+            elLife.innerHTML = life + BROKENLIFE + BROKENLIFE
+
+        }
+
+
+        if (gLife === 0) {
+            var elRestartBtn = document.querySelector('.restart-btn')
+            elRestartBtn.innerHTML = LOSE
+
+            clearInterval(gTimerIntrval)
+            for (var x = 0; x < gBoard.length; x++) {
+                for (var y = 0; y < gBoard[0].length; y++) {
+                    if (gBoard[x][y].isMin) {
+                        gBoard[x][y].isShown = true
+                    }
                 }
             }
         }
@@ -128,8 +180,8 @@ function onCellClicked(i, j) {
         }
         cell.isShown = true
         gGame.shownCount++
-        var elshownCount=document.querySelector('.shown-count')
-    elshownCount.innerHTML=gGame.shownCount
+        var elshownCount = document.querySelector('.shown-count')
+        elshownCount.innerHTML = gGame.shownCount
         expandShown(gBoard, i, j)
     }
     checkGameOver(i, j)
@@ -147,8 +199,8 @@ function onCellMarked(event, i, j) {
     const cell = gBoard[i][j]
     cell.isMarked = !cell.isMarked
     gGame.markedCount += cell.isMarked ? 1 : -1
-    var elmarkedCount=document.querySelector('.marked-count')
-    elmarkedCount.innerHTML=gGame.markedCount
+    var elmarkedCount = document.querySelector('.marked-count')
+    elmarkedCount.innerHTML = gGame.markedCount
 
     checkGameOver(i, j)
     renderBoard(gBoard)
@@ -162,6 +214,9 @@ function checkGameOver(i, j) {
     if (gMarkedMinsCount === gLevel1.mines) {
         gGame.isOn = false
         console.log('win');
+        var elRestartBtn = document.querySelector('.restart-btn')
+        elRestartBtn.innerHTML = win
+
         clearInterval(gTimerIntrval)
         return
     }
@@ -169,10 +224,13 @@ function checkGameOver(i, j) {
         for (var j = 0; j < gBoard[0].length; j++) {
             if (gGame.shownCount === gBoard.length * gBoard.length - gLevel1.mines) {
                 console.log('win');
+                var elRestartBtn = document.querySelector('.restart-btn')
+                elRestartBtn.innerHTML = win
                 clearInterval(gTimerIntrval)
             }
         }
     }
+    
 }
 
 // ///////////////////////////////////////////////////////////////////
@@ -187,9 +245,9 @@ function expandShown(board, i, j) {
                     if (board[x][y].minesAroundCount === 0) {
                         board[i][j].isShown = true
                         gGame.shownCount++
-                        var elshownCount=document.querySelector('.shown-count')
-                        elshownCount.innerHTML=gGame.shownCount
-                    
+                        var elshownCount = document.querySelector('.shown-count')
+                        elshownCount.innerHTML = gGame.shownCount
+
                         console.log(gGame.shownCount);
 
                         expandShown(board, x, y)
@@ -225,9 +283,11 @@ function countNeighbors(rowIdx, colIdx, mat) {
 /////////////////////////////////////////////////////////////////////
 function randPosMin(board, minesCount) {
     var randPosMin = 0
+    const size = board.length
+    if (size === 0) return
     while (randPosMin < minesCount) {
-        const i = getRandomInt(0, gLevel1.size)
-        const j = getRandomInt(0, gLevel1.size)
+        const i = getRandomInt(0,size)
+        const j = getRandomInt(0,size)
         if (!board[i][j].isMin) {
             board[i][j].isMin = true
             randPosMin++
@@ -275,9 +335,12 @@ function padTime(val) {
 function padMiliseconds(ms) {
     return String(ms).padStart(3, '0')
 }
+/////////////////////////////////////////////////////////////////////
 
 
-
+function restartBtn() {
+    onInit()
+}
 /////////////////////////////////////////////////////////////////////
 function getRandomInt(min, max) {
     const minCeiled = Math.ceil(min);
@@ -285,3 +348,52 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
 }
 
+//BONUS:
+
+function useHelp(i, j) {
+    if(gUseHelp>3)return
+if(gUseHelpCount===1){
+    var elUseHlep=document.querySelector('.use-hlep')
+    elUseHlep.innerHTML=UNUSEHELP+UNUSEHELP+USEHELP
+}
+if(gUseHelpCount===2){
+    var elUseHlep=document.querySelector('.use-hlep')
+    elUseHlep.innerHTML=UNUSEHELP+USEHELP+USEHELP
+}
+if(gUseHelpCount===3){
+    var elUseHlep=document.querySelector('.use-hlep')
+    elUseHlep.innerHTML=USEHELP+USEHELP+USEHELP
+}
+    gUseHelp=true
+var helpNeighbor=[]
+    for (var x = i - 1; x <= i + 1; x++) {
+        for (var y = j - 1; y <= j + 1; y++) {
+            if (x >= 0 && x < gBoard.length && y >= 0 && y < gBoard[0].length&&!gBoard[x][y].isShown) {
+                        gBoard[x][y].isShown = true
+                        helpNeighbor.push({x,y})
+                    }
+                }
+            }
+            renderBoard(gBoard)
+            setTimeout(() => {
+                helpNeighbor.forEach(({x,y})=>(gBoard[x][y].isShown=false))
+                renderBoard(gBoard)
+                gUseHelp=false
+            }, 1500)
+            
+            
+}
+function selectLevel(level) {
+    switch(level) {
+        case 1:
+            gBoard = buildBoard(gLevel1.size, gLevel1.mines);
+            break;
+        case 2:
+            gBoard = buildBoard(gLevel2.size, gLevel2.mines);
+            break;
+        case 3:
+            gBoard = buildBoard(gLevel3.size, gLevel3.mines);
+            break;
+    }
+    onInit()
+}

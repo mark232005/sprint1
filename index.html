@@ -8,14 +8,24 @@
 </head>
 <h1>play game</h1>
 <div class="timer">00:00.000</div>
+<div><span class="restart-btn" onclick="restartBtn()"></span></div>
+<div><span class="use-hlep" onclick="useHelp()">💡💡💡</span></div>
 <div class="achievement">
-   <p1>shown count:<span class="shown-count">0</span></p>
-   <p2>marked count:<span class="marked-count">0</span></p2> 
+  <div>shown count:<span class="shown-count">0</span></div>
+  <div>marked count:<span class="marked-count">0</span></div>
 </div>
+<div><span class="life"></span></div>
 <body onload="onInit()">
     <table>
         <tbody class="board"></tbody>
     </table>
+    <div class="difficulty">
+<button onclick="selectLevel(1)">Beginner</button>
+<button onclick="selectLevel(2)">Medium</button>
+<button onclick="selectLevel(3)">Expert</button>
+
+
+    </div>
     <p>Mark Aluf</p>
 <script src="js/main.js"></script>
 </body>
