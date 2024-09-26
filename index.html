@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,22 +12,22 @@
 <div><span class="restart-btn" onclick="restartBtn()"></span></div>
 <div><span class="use-hlep" onclick="useHelp()">💡💡💡</span></div>
 <div class="achievement">
-  <div>shown count:<span class="shown-count">0</span></div>
-  <div>marked count:<span class="marked-count">0</span></div>
+    <div>shown count:<span class="shown-count">0</span></div>
+    <div>marked count:<span class="marked-count">0</span></div>
 </div>
 <div><span class="life"></span></div>
+
 <body onload="onInit()">
     <table>
         <tbody class="board"></tbody>
     </table>
     <div class="difficulty">
-<button onclick="selectLevel(1)">Beginner</button>
-<button onclick="selectLevel(2)">Medium</button>
-<button onclick="selectLevel(3)">Expert</button>
-
-
+        <button onclick="setLevel(1)">Beginner</button>
+        <button onclick="setLevel(2)">Medium</button>
+        <button onclick="setLevel(3)">Expert</button>
     </div>
     <p>Mark Aluf</p>
-<script src="js/main.js"></script>
+    <script src="js/main.js"></script>
 </body>
+
 </html>

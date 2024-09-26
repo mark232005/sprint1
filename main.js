@@ -20,21 +20,21 @@ var gStartTime // holds the curr time
 var gStart = 0
 var gBoard
 var gLife = 3
-
+//LEVELS:
 var gLevel1 = {
     size: 4,
     mines: 2
-}
+};
 
 var gLevel2 = {
     size: 8,
     mines: 14
-}
+};
 
 var gLevel3 = {
     size: 12,
     mines: 32
-}
+};
 
 var gGame = {
     isOn: false,
@@ -46,8 +46,7 @@ var gMarkedMinsCount = 0
 var gUseHelp=false
 var gUseHelpCount=0
 /////////////////////////////////////////////////////////////////////
-
-
+var gLevel=1
 function onInit() {
     clearInterval(gTimerIntrval)
     var elLife = document.querySelector('.life')
@@ -67,15 +66,13 @@ function onInit() {
     gUseHelpCount=0
     var elUseHlep=document.querySelector('.use-hlep')
     elUseHlep.innerHTML=UNUSEHELP+UNUSEHELP+UNUSEHELP
-
-
     gGame.isOn = true
-    gBoard = buildBoard(gLevel1.size, gLevel1.mines)
+gBoard = selectLevel(gLevel);
     renderBoard(gBoard)
 
 }
 ////////////////////////////////////////////////////////////////////
-function buildBoard(size,minesCount) {
+function buildBoard(size, minesCount) {
     const board = []
     for (var i = 0; i < size; i++) {
         board[i] = []
@@ -89,16 +86,21 @@ function buildBoard(size,minesCount) {
         }
     }
     if (gStart === 0) {
-        randPosMin(gBoard,minesCount)
-        setMinesNegsCount(gBoard)
+        randPosMin(board, minesCount)
+        setMinesNegsCount(board)
         gStart++
     }
 
     return board
 }
+
 //////////////////////////////////////////////////////////////////////
 
 function renderBoard(board) {
+    var elBoard = document.querySelector('.board')
+    elBoard.style.gridTemplateColumns = `repeat(${board.length}, 80px)`
+    elBoard.style.gridTemplateRows = `repeat(${board.length}, 80px)`
+
     var strHtml = ''
     for (var i = 0; i < board.length; i++) {
         strHtml += '<tr>'
@@ -125,6 +127,8 @@ function renderBoard(board) {
     var elBoard = document.querySelector('.board')
     elBoard.innerHTML = strHtml
 }
+
+
 ///////////////////////////////////////////////////////////////////////
 
 function setMinesNegsCount(board) {
@@ -211,9 +215,11 @@ function checkGameOver(i, j) {
     if (gBoard[i][j].isMarked && gBoard[i][j].isMin) {
         gMarkedMinsCount++
     }
-    if (gMarkedMinsCount === gLevel1.mines) {
+    if (gMarkedMinsCount === gBoard.mines) {
         gGame.isOn = false
-        console.log('win');
+        console.log('win')
+        alert('YOU WIN!!')
+
         var elRestartBtn = document.querySelector('.restart-btn')
         elRestartBtn.innerHTML = win
 
@@ -223,7 +229,8 @@ function checkGameOver(i, j) {
     for (var i = 0; i < gBoard.length; i++) {
         for (var j = 0; j < gBoard[0].length; j++) {
             if (gGame.shownCount === gBoard.length * gBoard.length - gLevel1.mines) {
-                console.log('win');
+                console.log('win')
+                alert('YOU WIN!!')
                 var elRestartBtn = document.querySelector('.restart-btn')
                 elRestartBtn.innerHTML = win
                 clearInterval(gTimerIntrval)
@@ -237,7 +244,7 @@ function checkGameOver(i, j) {
 function expandShown(board, i, j) {
 
     if (board[i][j].minesAroundCount === 0) {
-        board[i][j].isShown = true;
+        board[i][j].isShown = true
         for (var x = i - 1; x <= i + 1; x++) {
             for (var y = j - 1; y <= j + 1; y++) {
                 if (x < 0 || x >= board.length || y < 0 || y >= board[x].length) continue;
@@ -248,7 +255,7 @@ function expandShown(board, i, j) {
                         var elshownCount = document.querySelector('.shown-count')
                         elshownCount.innerHTML = gGame.shownCount
 
-                        console.log(gGame.shownCount);
+                        console.log(gGame.shownCount)
 
                         expandShown(board, x, y)
                     }
@@ -297,7 +304,6 @@ function randPosMin(board, minesCount) {
 /////////////////////////////////////////////////////////////////////
 function startTimer() {
 
-    console.log('טיימר התחיל');
     gStartTime = Date.now()
 
 
@@ -347,6 +353,7 @@ function getRandomInt(min, max) {
     const maxFloored = Math.floor(max);
     return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
 }
+/////////////////////////////////////////////////////////////////////
 
 //BONUS:
 
@@ -383,17 +390,30 @@ var helpNeighbor=[]
             
             
 }
+/////////////////////////////////////////////////////////////////////
+
+function setLevel(level) {
+    gLevel = level
+    onInit()
+}
+/////////////////////////////////////////////////////////////////////
+
 function selectLevel(level) {
     switch(level) {
         case 1:
-            gBoard = buildBoard(gLevel1.size, gLevel1.mines);
-            break;
+            gLevel=1
+            return buildBoard(gLevel1.size, gLevel1.mines)
         case 2:
-            gBoard = buildBoard(gLevel2.size, gLevel2.mines);
-            break;
+            gLevel=2
+            return buildBoard(gLevel2.size, gLevel2.mines)
         case 3:
-            gBoard = buildBoard(gLevel3.size, gLevel3.mines);
-            break;
+            gLevel=3
+            return buildBoard(gLevel3.size, gLevel3.mines)
+        default:
+            console.error('Invalid level:', level)
+            return []
     }
-    onInit()
 }
+
+
+
